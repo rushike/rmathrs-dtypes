@@ -1,20 +1,16 @@
 [package]
-name = "ibig"
-version = "0.3.6"
-authors = ["Tomek Czajka <tczajka@gmail.com>"]
-edition = "2018"
-rust-version = "1.49"
+name = "rmathrs-dtypes"
+version = "0.0.1"
+authors = ["Tomek Czajka <tczajka@gmail.com>", "rushike <rushike.ab1@gmail.com>"]
+edition = "2021"
 description = "A big integer library with good performance"
 keywords = ["bigint", "bignum", "mathematics", "modular", "modulo"]
 categories = ["mathematics", "no-std"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/tczajka/ibig-rs"
-homepage = "https://github.com/tczajka/ibig-rs"
 readme = "README.md"
 exclude = ["generate_coverage.sh"]
 
-[package.metadata.docs.rs]
-all-features = true
+
 
 [features]
 default = ["std", "rand", "num-traits"]
@@ -30,7 +26,7 @@ version = "1.1"
 
 [dependencies.num-traits]
 optional = true
-version = "0.2.14"
+version = "0.2"
 default-features = false
 
 [dependencies.rand]
@@ -40,7 +36,7 @@ default-features = false
 
 [dependencies.serde]
 optional = true
-version = "1.0.130"
+version = "1.0"
 default-features = false
 features = ["derive"]
 
@@ -54,21 +50,4 @@ version = "0.8.3"
 [dev-dependencies.serde_test]
 version = "1.0.130"
 
-[lib]
-bench = false
 
-[[test]]
-name = "random"
-required-features = ["rand"]
-
-[[test]]
-name = "serde"
-required-features = ["serde"]
-
-[[bench]]
-name = "benchmarks"
-required-features = ["rand"]
-harness = false
-
-[workspace]
-members = ["dev-tools"]
