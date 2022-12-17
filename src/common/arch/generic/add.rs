@@ -1,4 +1,4 @@
-use crate::ibig::arch::word::Word;
+use super::super::arch_impl::word::Word;
 
 /// Add a + b + carry.
 ///

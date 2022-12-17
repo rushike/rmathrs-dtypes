@@ -23,8 +23,10 @@
       // console.log("lt : ", a.lt(b));
       // console.log("ne : ", a.ne(b));
       var numstr = "123456789123456789121";
+      var max = 1000_000;
+      var max = 1;
       var t1 = performance.now()
-      for(var i = 0; i < 1000000; i++) {
+      for(var i = 0; i < max; i++) {
         // FBig.from_str(numstr);
         new Decimal(numstr);
       }
@@ -33,7 +35,7 @@
       console.log("Decimal : ", t2 - t1);
 
       var t3 = performance.now()
-      for(var i = 0; i < 1000000; i++) {
+      for(var i = 0; i < max; i++) {
         // FBig.from_str(numstr);
         parseargs(numstr);
       }
@@ -42,17 +44,19 @@
       console.log("ParseArgs : ", t4 - t3);
 
       var t5 = performance.now()
-      for(var i = 0; i < 1000_000; i++) {
-        FBig.from_str(numstr);
+      for(var i = 0; i < max; i++) {
+        var res = FBig.from_str(numstr);
         // parseargs(numstr);
+        console.log("Fbig ", res.toString());
       }
       var t6 = performance.now()
 
       console.log("Fbig : ", t6 - t5);
       
       var t7 = performance.now()
-      for(var i = 0; i < 1000_000; i++) {
-        IBig.from_str(numstr);
+      for(var i = 0; i < max; i++) {
+        var res = IBig.from_str(numstr);
+        console.log("Ibig : ", res.toString());
         // parseargs(numstr);
       }
       var t8 = performance.now()
@@ -60,7 +64,7 @@
       console.log("Ibig : ", t8 - t7);
      
       var t9 = performance.now()
-      for(var i = 0; i < 1000_000; i++) {
+      for(var i = 0; i < max; i++) {
         BigInt(numstr);
         // parseargs(numstr);
       }
@@ -69,7 +73,7 @@
       console.log("bigint : ", t10 - t9);
      
       var t11 = performance.now()
-      for(var i = 0; i < 1000_000; i++) {
+      for(var i = 0; i < max; i++) {
         Number(numstr);
         // parseargs(numstr);
       }

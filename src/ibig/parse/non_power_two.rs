@@ -8,7 +8,7 @@ use crate::ibig::{
     error::ParseError,
     mul,
     radix::{self, Digit},
-    ubig::UBig, parse::parsebytes::{parse_4_byte, parse_8_bytes, parse_16_bytes, parse_8_bytes_flex},
+    ubig::UBig,
 };
 use alloc::vec;
 
@@ -46,48 +46,6 @@ pub(crate) fn parse2(bytes: &[u8], radix: Digit) -> Result<UBig, ParseError> {
         parse_large(bytes, radix)
     }
 }
-pub fn parse3(bytes: &[u8], radix: Digit) -> Result<UBig, ParseError> {
-    debug_assert!(radix::is_radix_valid(radix) && !radix.is_power_of_two());
-    let radix_info = radix::radix_info(radix);
-    let size = bytes.len();
-    let group_size = 8;
-    let group_size_half = group_size >> 1;
-    let groups = bytes.rchunks(group_size);
-    // let mut itrm_buffer = Buffer::allocate(groups.len());
-    let mut buffer = Buffer::allocate(groups.len());
-    for group in groups.rev() {
-        // println!("group : {group:?}");
-        let localnum = if group.len() < group_size_half {
-            parse_8_bytes_flex(group)
-        } else {
-            parse_8_bytes(group)
-        };
-
-        // itrm_buffer.push(localnum);
-
-        // println!("local num : {localnum:?}");
-
-        let carry = mul::mul_word_in_place_with_carry(&mut buffer, 100000000, localnum as Word);
-        if carry != 0 {
-            buffer.push(carry);
-        }
-    }
-    // println!("itrm buffer : {:?}", itrm_buffer);
-    // println!("radixx info : {:?}", radix_info.range_per_word);
-    // let mut buffer = Buffer::allocate(itrm_buffer.len());
-    // itrm_buffer.reverse();
-    // for lnum in itrm_buffer.iter() {
-    //     let carry = mul::mul_word_in_place_with_carry(&mut buffer, 100000000, *lnum);
-    //     if carry != 0 {
-    //         buffer.push(carry);
-    //     }
-    // }
-
-    // println!("buffer : {:?}", buffer);
-    // println!("parse chunk res : {:?}", parse_chunk(bytes, radix));
-    return Ok(buffer.into());
-}
-
 
 /// Parse an unsigned string to `Word`.
 ///

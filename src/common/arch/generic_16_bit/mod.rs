@@ -7,3 +7,5 @@ pub(crate) mod digits;
 pub(crate) mod ntt;
 
 pub(crate) mod word;
+
+pub(crate) mod parse;

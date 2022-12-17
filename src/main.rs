@@ -1,30 +1,25 @@
 #![allow(unused)]
-use std::{time::Instant, str::FromStr};
+use std::{time::Instant, str::FromStr, str};
 
 use regex::bytes;
 use wasm_bindgen::prelude::*;
 
 use lazy_static::lazy_static;
 
-use rmathrs_dtypes::{ibig::{IBig, parse::non_power_two}, fbig::FBig};
+use rmathrs_dtypes::{ibig::{IBig, parse::non_power_two, parse::decimal}, fbig::FBig};
 
 
 
 fn main() {
-  let curr = Instant::now();
   let max = 1000_000;
-  for i in 1..max {
-    let s = "123456789123456789121".as_bytes();
-    // let num = 
-    // println!("s bytess : {s:?}");
-    let res = non_power_two::parse3(s, 10);
-    // println!("res : {res:?}");
-  }  
-  println!("parse3 took : {:?}", curr.elapsed());
+  let numstr = "1234567891234567";
+  let numbytes = numstr.as_bytes();
 
   let curr = Instant::now();
   for i in 1..max {
-    IBig::from_str("123456789123456789121").unwrap();
+    let res = IBig::from_str(numstr).unwrap();
+    // println!("res : {res}");
+
   }
 
   println!("Ibig took : {:?}", curr.elapsed());

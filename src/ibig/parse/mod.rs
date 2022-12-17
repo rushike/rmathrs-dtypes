@@ -8,11 +8,11 @@ use crate::ibig::{
     ubig::UBig,
 };
 use core::str::FromStr;
-use std::time::Instant;
+use std::{time::Instant, num};
 
 pub mod non_power_two;
 pub mod power_two;
-pub mod parsebytes;
+pub mod decimal;
 
 impl FromStr for UBig {
     type Err = ParseError;
@@ -91,6 +91,10 @@ impl UBig {
             return Err(ParseError::NoDigits);
         }
 
+        if radix == 10 {
+            return UBig::parse_decimal_str(src);
+        }
+
         while let Some(src2) = src.strip_prefix('0') {
             src = src2;
         }
@@ -109,6 +113,10 @@ impl UBig {
 
         while  strbytes[numindex] == b'0' {
             numindex += 1;
+        }
+
+        if radix == 10 {
+            return UBig::parse_decimal_bytes(&strbytes[numindex..]);
         }
 
         if radix.is_power_of_two() {
@@ -136,22 +144,23 @@ impl IBig {
     /// assert_eq!(IBig::from_str_radix("-7ab", 32)?, ibig!(-7499));
     /// # Ok::<(), ParseError>(())
     /// ```
-    pub fn from_str_radix1(mut src: &str, radix: u32) -> Result<IBig, ParseError> {
-        radix::check_radix_valid(radix); // took 11 - 12 micro secs
-        let sign;
-        match src.strip_prefix('-') {
-            Some(s) => {
-                sign = Negative;
-                src = s;
-            }
-            None => {
-                sign = Positive;
-                src = src.strip_prefix('+').unwrap_or(src);
-            }
-        } // till here takes 40 - 50 micro second
-        let mag = UBig::from_str_radix_no_sign(src, radix)?; 
-        Ok(IBig::from_sign_magnitude(sign, mag) /* takes < 0.5 micro seconds */)
-    }
+
+    // pub fn from_str_radix1(mut src: &str, radix: u32) -> Result<IBig, ParseError> {
+    //     radix::check_radix_valid(radix); // took 11 - 12 micro secs
+    //     let sign;
+    //     match src.strip_prefix('-') {
+    //         Some(s) => {
+    //             sign = Negative;
+    //             src = s;
+    //         }
+    //         None => {
+    //             sign = Positive;
+    //             src = src.strip_prefix('+').unwrap_or(src);
+    //         }
+    //     } // till here takes 40 - 50 micro second
+    //     let mag = UBig::from_str_radix_no_sign(src, radix)?; 
+    //     Ok(IBig::from_sign_magnitude(sign, mag) /* takes < 0.5 micro seconds */)
+    // }
 
     pub fn from_str_radix(src: &str, radix: u32) -> Result<IBig, ParseError> {
         radix::check_radix_valid(radix); // took 11 - 12 micro secs
