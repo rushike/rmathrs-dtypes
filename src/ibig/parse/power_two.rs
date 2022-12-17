@@ -22,6 +22,18 @@ pub(crate) fn parse(src: &str, radix: Digit) -> Result<UBig, ParseError> {
     }
 }
 
+pub(crate) fn parse2(bytes : &[u8], radix: Digit) -> Result<UBig, ParseError> {
+    debug_assert!(radix::is_radix_valid(radix) && radix.is_power_of_two());
+    let radix_info = radix::radix_info(radix);
+
+    if bytes.len() <= radix_info.digits_per_word {
+        let word = parse_word2(bytes, radix)?;
+        Ok(UBig::from_word(word))
+    } else {
+        parse_large2(bytes, radix)
+    }
+}
+
 /// Parse an unsigned string to `Word`.
 ///
 /// The length of the string must be at most digits_per_word(radix).
@@ -33,6 +45,20 @@ fn parse_word(src: &str, radix: Digit) -> Result<Word, ParseError> {
     let mut word = 0;
     let mut bits = 0;
     for byte in src.as_bytes().iter().rev() {
+        let digit = radix::digit_from_utf8_byte(*byte, radix).ok_or(ParseError::InvalidDigit)?;
+        word |= (digit as Word) << bits;
+        bits += log_radix;
+    }
+    Ok(word)
+}
+
+fn parse_word2(bytes : &[u8], radix: Digit) -> Result<Word, ParseError> {
+    debug_assert!(bytes.len() <= radix::radix_info(radix).digits_per_word);
+
+    let log_radix = radix.trailing_zeros();
+    let mut word = 0;
+    let mut bits = 0;
+    for byte in bytes.iter().rev() {
         let digit = radix::digit_from_utf8_byte(*byte, radix).ok_or(ParseError::InvalidDigit)?;
         word |= (digit as Word) << bits;
         bits += log_radix;
@@ -56,6 +82,34 @@ fn parse_large(src: &str, radix: Digit) -> Result<UBig, ParseError> {
     let mut bits = 0;
     let mut word = 0;
     for byte in src.as_bytes().iter().rev() {
+        let digit = radix::digit_from_utf8_byte(*byte, radix).ok_or(ParseError::InvalidDigit)?;
+        word |= (digit as Word) << bits;
+        let new_bits = bits + log_radix;
+        if new_bits >= WORD_BITS {
+            buffer.push(word);
+            word = (digit as Word) >> (WORD_BITS - bits);
+            bits = new_bits - WORD_BITS;
+        } else {
+            bits = new_bits;
+        }
+    }
+    if bits > 0 {
+        buffer.push(word);
+    }
+    Ok(buffer.into())
+}
+
+fn parse_large2(bytes : &[u8], radix: Digit) -> Result<UBig, ParseError> {
+    let log_radix = radix.trailing_zeros();
+    #[allow(clippy::redundant_closure)]
+    let num_bits = bytes
+        .len()
+        .checked_mul(log_radix as usize)
+        .unwrap_or_else(|| UBig::panic_number_too_large());
+    let mut buffer = Buffer::allocate((num_bits - 1) / WORD_BITS_USIZE + 1);
+    let mut bits = 0;
+    let mut word = 0;
+    for byte in bytes.iter().rev() {
         let digit = radix::digit_from_utf8_byte(*byte, radix).ok_or(ParseError::InvalidDigit)?;
         word |= (digit as Word) << bits;
         let new_bits = bits + log_radix;

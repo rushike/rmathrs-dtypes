@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Console Tester</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/9.0.0/decimal.min.js" integrity="sha512-zPQm8HS4Phjo9pUbbk+HPH3rSWu5H03NFvBpPf6D9EU2xasj0ZxhYAc/lvv/HVDWMSE1Autj19i6nZOfiVQbFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <script type="module">
+    import init, {FBig, IBig} from "./pkg/rmathrs_dtypes.js"
+    async function run() {
+      await init('./pkg/rmathrs_dtypes_bg.wasm');
+      // var a = IBig.from_i32(12);
+      // var b = IBig.from_i32(-13);
+
+      // console.log("abs : ", b.abs());
+      // console.log("a + b : ", a.plus(b));
+      // console.log("a - b : ", a.sub(b));
+      // console.log("ge : ", a.ge(b));
+      // console.log("eq : ", a.eq(b));
+      // console.log("lt : ", a.lt(b));
+      // console.log("ne : ", a.ne(b));
+      var numstr = "123456789123456789121";
+      var t1 = performance.now()
+      for(var i = 0; i < 1000000; i++) {
+        // FBig.from_str(numstr);
+        new Decimal(numstr);
+      }
+      var t2 = performance.now()
+
+      console.log("Decimal : ", t2 - t1);
+
+      var t3 = performance.now()
+      for(var i = 0; i < 1000000; i++) {
+        // FBig.from_str(numstr);
+        parseargs(numstr);
+      }
+      var t4 = performance.now()
+
+      console.log("ParseArgs : ", t4 - t3);
+
+      var t5 = performance.now()
+      for(var i = 0; i < 1000_000; i++) {
+        FBig.from_str(numstr);
+        // parseargs(numstr);
+      }
+      var t6 = performance.now()
+
+      console.log("Fbig : ", t6 - t5);
+      
+      var t7 = performance.now()
+      for(var i = 0; i < 1000_000; i++) {
+        IBig.from_str(numstr);
+        // parseargs(numstr);
+      }
+      var t8 = performance.now()
+
+      console.log("Ibig : ", t8 - t7);
+     
+      var t9 = performance.now()
+      for(var i = 0; i < 1000_000; i++) {
+        BigInt(numstr);
+        // parseargs(numstr);
+      }
+      var t10 = performance.now()
+
+      console.log("bigint : ", t10 - t9);
+     
+      var t11 = performance.now()
+      for(var i = 0; i < 1000_000; i++) {
+        Number(numstr);
+        // parseargs(numstr);
+      }
+      var t12 = performance.now()
+
+      console.log("number : ", t12 - t11);
+     
+    }
+
+    function parseargs(a) {
+      const INTEGER_STRING_MATCH_EXP = "";
+      // const DECIMAL_STRING_MATCH_EXP = /(?<sign>[+-]?)([0]*)(?<integer>\d+)(\.(?<fraction>[\d]+))?(e(?<exp>[+-]?\d+))?/
+      const DECIMAL_STRING_MATCH_EXP = /(?<sign>[+-]?)([0]*)(?<integer>\d+)(\.(?<fraction>(?<leading_frac_zeros>[0]*)?[\d]+))?(e(?<exp>[+-]?\d+))?/
+      
+
+        var match = a.match(DECIMAL_STRING_MATCH_EXP)
+        // if (!match ) throw new Error(`'${a}' not in decimal format ${DECIMAL_STRING_MATCH_EXP}`)
+        // var s = match.groups?.sign || "", 
+        //   i = match.groups?.integer || "0",
+        //   f = match.groups?.fraction || "",
+        //   lfz = Number(match.groups?.leading_frac_zeros?.length || 0),
+        //   e = Number(match.groups?.exp || 0)
+        // ;
+        // var nstr =  i + f,
+        //   p = nstr.length,
+        //   n = nstr.length > 15 ? BigInt(s + nstr) : Number(s + nstr),
+        //   b = 10
+        // ;
+        // e += i === "0" ? -lfz : i.length;
+        
+      }
+
+    run();
+
+    
+  </script>
+  <script>
+
+    function onEnterStrNum() {
+      const IBig = window.IBig;
+      console.log("Ibig : ", IBig);
+      var str = document.getElementById("str_bigint").value;
+      console.log("str num : ", str);
+      var res= IBig.fromstring(str);
+      console.log("Res : ", res);
+      document.getElementById("res_str").innerHTML = res.tostring();
+    }
+    function onEnterNum() {
+      var n = document.getElementById("num_bigint").value;
+      var res= IBig.from_i32(n);
+      document.getElementById("res_num").innerHTML = res.tostring();
+    }
+  </script>
+  <label for="str_bigint">Input String</label>
+  <input id="str_bigint" type="text">
+  <span id = "res_str"></span>
+  <button onclick="onEnterStrNum()">Click Me Str</button>
+  <br>
+
+  <label for="num_bigint">Input Number</label>
+  <input id="num_bigint" type="number">
+  <span id = "res_num"></span>
+  <button onclick="onEnterNum()">Click Me Num</button>
+
+
+</body>
+</html>

@@ -61,16 +61,18 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-extern crate alloc;
+// extern crate alloc;
 
 pub use crate::ibig::{ibig::IBig, ubig::UBig};
 
 mod add;
 mod add_ops;
-mod arch;
+
+#[path = "../common/arch/mod.rs"]
+pub(crate) mod arch;
 mod assert;
 mod bits;
-mod buffer;
+pub mod buffer;
 mod cmp;
 mod convert;
 mod div;
@@ -80,22 +82,23 @@ mod fast_divide;
 pub mod fmt;
 mod gcd;
 mod helper_macros;
-mod ibig;
+pub mod ibig;
 mod macros;
 mod math;
 mod memory;
 pub mod modular;
-mod mul;
+pub mod mul;
 mod mul_ops;
 pub mod ops;
-mod parse;
+pub mod parse;
 mod pow;
+#[path = "../common/primitive.rs"]
 mod primitive;
-mod radix;
+pub mod radix;
 mod shift;
 mod shift_ops;
-mod sign;
-mod ubig;
+pub mod sign;
+pub mod ubig;
 
 #[cfg(feature = "rand")]
 pub mod rand;
@@ -105,3 +108,4 @@ mod num_traits;
 
 #[cfg(feature = "serde")]
 mod serde;
+mod wasm;

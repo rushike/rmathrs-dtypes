@@ -1,5 +1,7 @@
 //! Information about radixes.
 
+use std::time::Instant;
+
 use crate::ibig::{
     arch::word::Word,
     fast_divide::{FastDivideNormalized, FastDivideSmall},
@@ -16,7 +18,8 @@ pub(crate) const MAX_RADIX: Digit = 36;
 /// Is a radix in valid range?
 #[inline]
 pub(crate) fn is_radix_valid(radix: Digit) -> bool {
-    (2..=MAX_RADIX).contains(&radix)
+    // (2..=MAX_RADIX).contains(&radix)
+    1 < radix && MAX_RADIX > radix
 }
 
 /// Panics if `radix` is not in valid range.
@@ -38,10 +41,29 @@ pub(crate) enum DigitCase {
     Upper = b'A' - b'0' - 10,
 }
 
+pub(crate) fn digit_from_utf8_byte1(byte: u8, radix: Digit) -> Option<Digit> {
+    let res = if byte <= b'9' {
+        ( byte - b'0' ) as Digit
+    } else if byte >= b'a' && byte <= b'z' {
+        ( byte - b'a' + 10 ) as Digit
+    } else if byte >= b'A' && byte <= b'Z' {
+        (byte - b'A' + 10) as Digit
+    } else {
+        37 // More than any radix we can parse;
+    };
+
+    return if res < radix {
+        Some(res)
+    } else {
+        None
+    };
+}
+
+
 /// Converts a byte (ASCII) representation of a digit to its value.
 pub(crate) fn digit_from_utf8_byte(byte: u8, radix: Digit) -> Option<Digit> {
     let res = match byte {
-        b'0'..=b'9' => (byte - b'0') as Digit,
+        b'0'..=b'9' => (byte & 0x0f) as Digit,
         b'a'..=b'z' => (byte - b'a') as Digit + 10,
         b'A'..=b'Z' => (byte - b'A') as Digit + 10,
         _ => return None,
@@ -78,6 +100,11 @@ pub(crate) struct RadixInfo {
 #[inline]
 pub(crate) fn radix_info(radix: Digit) -> &'static RadixInfo {
     debug_assert!(is_radix_valid(radix));
+    &RADIX_INFO_TABLE[radix as usize]
+}
+
+#[inline]
+pub(crate) fn radix_info_internal(radix: Digit) -> &'static RadixInfo {
     &RADIX_INFO_TABLE[radix as usize]
 }
 

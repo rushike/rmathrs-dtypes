@@ -10,24 +10,20 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 exclude = ["generate_coverage.sh"]
 
+[lib]
+crate-type = ["cdylib", "rlib"]
 
-
-[features]
-default = ["std", "rand", "num-traits"]
-
-# Interface with the std library.
-std = []
+[dependencies]
+wasm-bindgen = "0.2"
+num-traits = "0.2"
+regex = "1"
+lazy_static = "1.4"
 
 [dependencies.cfg-if]
 version = "1.0.0"
 
 [dependencies.static_assertions]
 version = "1.1"
-
-[dependencies.num-traits]
-optional = true
-version = "0.2"
-default-features = false
 
 [dependencies.rand]
 optional = true
@@ -36,18 +32,11 @@ default-features = false
 
 [dependencies.serde]
 optional = true
-version = "1.0"
+version = "1.0.130"
 default-features = false
 features = ["derive"]
 
-[dev-dependencies.criterion]
-version = "0.3.4"
-features = ["html_reports"]
 
 [dev-dependencies.rand]
 version = "0.8.3"
-
-[dev-dependencies.serde_test]
-version = "1.0.130"
-
 

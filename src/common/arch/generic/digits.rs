@@ -1,5 +1,5 @@
-use crate::ibig::{arch::word::Word, primitive::WORD_BYTES, radix::DigitCase};
-
+use crate::ibig::{arch::word::Word, radix::DigitCase};
+use crate::common::primitive::WORD_BYTES;
 /// Chunk length for digit conversion.
 pub(crate) const DIGIT_CHUNK_LEN: usize = WORD_BYTES;
 

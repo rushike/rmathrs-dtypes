@@ -1,10 +1,11 @@
 //! Signed big integer.
 
+use wasm_bindgen::prelude::*;
+
 use crate::ibig::{
     sign::Sign::{self, *},
     ubig::UBig,
 };
-
 /// Signed big integer.
 ///
 /// Arbitrarily large signed integer.
@@ -21,12 +22,14 @@ use crate::ibig::{
 /// assert_eq!(b, d);
 /// # Ok::<(), ParseError>(())
 /// ```
+#[wasm_bindgen]
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub struct IBig {
     sign: Sign,
     magnitude: UBig,
 }
 
+#[wasm_bindgen]
 impl IBig {
     #[inline]
     pub(crate) fn from_sign_magnitude(mut sign: Sign, magnitude: UBig) -> IBig {

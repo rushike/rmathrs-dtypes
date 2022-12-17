@@ -783,6 +783,7 @@ macro_rules! impl_div_ubig_unsigned {
 
         helper_macros::forward_binop_second_arg_by_value!(impl Div<$t> for UBig, div);
 
+
         impl DivAssign<$t> for UBig {
             #[inline]
             fn div_assign(&mut self, rhs: $t) {

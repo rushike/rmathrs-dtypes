@@ -6,7 +6,7 @@ use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkId, Criterion,
     PlotConfiguration,
 };
-use ibig::{modular::ModuloRing, ops::DivRem, ubig, UBig};
+use rmathrs_dtypes::ibig::{modular::ModuloRing, ops::DivRem, ubig, UBig};
 use rand::prelude::*;
 use std::fmt::Write;
 
