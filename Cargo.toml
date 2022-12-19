@@ -1,5 +1,5 @@
 [package]
-name = "rmathrs-dtypes"
+name = "rsdtypes"
 version = "0.0.1"
 authors = ["Tomek Czajka <tczajka@gmail.com>", "rushike <rushike.ab1@gmail.com>"]
 edition = "2021"

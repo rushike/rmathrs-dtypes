@@ -6,7 +6,7 @@ use wasm_bindgen::prelude::*;
 
 use lazy_static::lazy_static;
 
-use rmathrs_dtypes::{ibig::{IBig, parse::non_power_two, parse::decimal}, fbig::FBig};
+use rsdtypes::{ibig::{IBig, parse::non_power_two, parse::decimal}, fbig::FBig};
 
 
 

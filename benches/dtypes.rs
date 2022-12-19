@@ -3,7 +3,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 use core::str::FromStr;
 
-use rmathrs_dtypes::{fbig::FBig, ibig::IBig};
+use rsdtypes::{fbig::FBig, ibig::IBig};
 
 fn fbig_init_from_str() {
   FBig::from_str("12345.6789").unwrap();
