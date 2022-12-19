@@ -1,6 +1,8 @@
+use std::str::FromStr;
+
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::ibig::IBig;
+use crate::{ibig::IBig, common::arch::word::{FloatWord, SignedWord, Word}};
 
 /// Real 'd' represented as :
 ///    d = n * b ^ -e
@@ -13,12 +15,12 @@ use crate::ibig::IBig;
 ///      here n = 7876, b = 10, e = 9, p = 4
 ///      here n = 78760, b = 10, e = 9, p = 5
 #[wasm_bindgen]
-#[derive(Debug)]
+#[derive(Clone, Eq, Hash, Debug)]
 pub struct FBig {
-  n : IBig,
-  b : usize,
-  e : isize,
-  p : usize
+  pub(crate) n : IBig,
+  pub(crate) b : usize,
+  pub(crate) e : isize,
+  pub(crate) p : usize
 }
 
 #[wasm_bindgen]
@@ -30,4 +32,115 @@ impl FBig {
     }
 }
 
+macro_rules! from_impl_for_ints_to_fbig {
+  ($t:ty) => {
+    impl From<$t> for FBig {
+        #[inline]
+        fn from(num: $t) -> FBig {
+          let e  = (num as FloatWord).abs().log10().floor() as isize + 1;
+          // println!("inp : {num}, op : {e}");
+          return Self{
+              n: IBig::from(num),
+              b: 10,
+              e,
+              p: e as usize
+          };
+        }
+    }
+  }
+}
 
+from_impl_for_ints_to_fbig!(u8);
+from_impl_for_ints_to_fbig!(u16);
+from_impl_for_ints_to_fbig!(u32);
+from_impl_for_ints_to_fbig!(u64);
+from_impl_for_ints_to_fbig!(u128);
+from_impl_for_ints_to_fbig!(i8);
+from_impl_for_ints_to_fbig!(i16);
+from_impl_for_ints_to_fbig!(i32);
+from_impl_for_ints_to_fbig!(i64);
+from_impl_for_ints_to_fbig!(i128);
+
+
+
+impl From<f64> for FBig {
+    fn from(num: f64) -> Self {
+        let e  = num.abs().log10().floor() as isize + 1;
+        let intstr = num.to_string().replace(".", "");
+        let int : i64 = intstr.parse().unwrap();
+        // println!("num : {} e : {e}, int : {int}, intstr : {intstr}", num.abs().log10().floor());
+        return Self{
+            n: IBig::from(int),
+            b: 10,
+            e,
+            p: ((int as f64).abs().log10().floor() + 1.0) as usize
+        };
+    }
+}
+
+impl From<f32> for FBig {
+  fn from(num: f32) -> Self {
+      let e  = num.log10().ceil() as isize;
+      let intstr = num.to_string().replace(".", "");
+      let int : i32 = intstr.parse().unwrap();
+      return Self{
+          n: IBig::from(int),
+          b: 10,
+          e,
+          p: intstr.len()
+      };
+  }
+}
+
+impl From<String> for FBig {
+  fn from(s: String) -> Self {
+      return FBig::from_str(s.as_str()).unwrap();
+  }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::ibig::IBig;
+
+    use super::FBig;
+
+  #[test]
+  fn test_from_impl_for_ints_to_fbig() {
+    let expected1 = FBig {
+      n : IBig::from(1234),
+      b : 10,
+      e : 4,
+      p : 4
+    };
+    let expected2 = FBig {
+      n : IBig::from(-1234),
+      b : 10,
+      e : 4,
+      p : 4
+    };
+    let num1 = 1234;
+    let num2 = -1234;
+    let res = FBig::from(num1 as u16);
+    assert_eq!(res, expected1);
+    let res = FBig::from(num1 as u32);
+    assert_eq!(res, expected1);
+    let res = FBig::from(num1 as u64);
+    assert_eq!(res, expected1);
+    let res = FBig::from(num1 as u128);
+    assert_eq!(res, expected1);
+
+    let res = FBig::from(num2 as i16);
+    assert_eq!(res, expected2);
+    let res = FBig::from(num2 as i32);
+    assert_eq!(res, expected2);
+    let res = FBig::from(num2 as i64);
+    assert_eq!(res, expected2);
+    let res = FBig::from(num2 as i128);
+    assert_eq!(res, expected2);
+  }
+
+  #[test]
+  fn test_impl_for_floats() {
+
+  }
+}

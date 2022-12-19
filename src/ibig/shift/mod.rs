@@ -5,6 +5,8 @@ use crate::ibig::{
     primitive::{double_word, extend_word, split_double_word, WORD_BITS},
 };
 
+pub(crate) mod decimal;
+
 /// Shift left by less than WORD_BITS in place.
 /// Returns carry.
 pub(crate) fn shl_in_place(words: &mut [Word], shift: u32) -> Word {

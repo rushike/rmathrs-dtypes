@@ -79,7 +79,7 @@ mod div;
 mod div_ops;
 pub mod error;
 mod fast_divide;
-pub mod fmt;
+pub(crate) mod fmt;
 mod gcd;
 mod helper_macros;
 pub mod ibig;
@@ -95,7 +95,7 @@ mod pow;
 #[path = "../common/primitive.rs"]
 mod primitive;
 pub mod radix;
-mod shift;
+pub(crate) mod shift;
 mod shift_ops;
 pub mod sign;
 pub mod ubig;

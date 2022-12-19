@@ -106,12 +106,13 @@ impl UBig {
         } // it took 1 - 3 micro sec;
     }
 
-    fn from_bytes_radix_no_sign(mut strbytes : &[u8], mut numindex : usize, radix : Digit) -> Result<UBig, ParseError> {
+    fn from_bytes_radix_no_sign(strbytes : &[u8], mut numindex : usize, radix : Digit) -> Result<UBig, ParseError> {
         if strbytes.is_empty() {
             return Err(ParseError::NoDigits);
         }
 
-        while  strbytes[numindex] == b'0' {
+       for b in &strbytes[numindex..strbytes.len() - 1] {
+            if *b != b'0' { break; }
             numindex += 1;
         }
 

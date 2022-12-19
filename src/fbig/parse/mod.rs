@@ -1,4 +1,5 @@
 use core::{str::FromStr, num};
+use std::ops::ControlFlow;
 
 use regex::{Regex, bytes};
 
@@ -26,15 +27,16 @@ impl FromStr for FBig {
 
 impl FBig {
     // #[wasm_bindgen]
+    /// //TODO: Need to implement below function for all radix.
     pub fn from_str_radix(num : &str, radix : usize) -> Result<FBig, ParseError> {
       match radix {
-          10 => return FBig::from_decimal_str(num, 10),
+          10 => return FBig::from_decimal_str(num),
           _ => Err(ParseError::InvalidDigit) // ("Non decimal string parsing not implemented")
       }
     }
 
 
-    fn from_decimal_str1(num : &str, radix : usize) -> Result<FBig, ParseError> {
+    fn from_decimal_str_flex(num : &str, radix : usize) -> Result<FBig, ParseError> {
       lazy_static! { 
         static ref NUM_STRING_MATCH_EXP: Regex = Regex::new(r"(?P<sign>[+-]?)([0]*)(?P<integer>\d+)?(\.(?P<fraction>(?P<leading_frac_zeros>[0]*)?\d+))?(e(?P<exp>[+-]?\d+))?").unwrap();
       }
@@ -74,8 +76,15 @@ impl FBig {
       return Ok(FBig::new(n, b, e, p));
     }
 
-  fn from_decimal_str(num : &str, radix : usize) -> Result<FBig, ParseError> {
-    let numbytes = num.trim().as_bytes();
+  /// This parases the floating decimal string of format <sign>?<integer>.<fraction>
+  /// It assumes string contains digits from 0..9 only.
+  /// 
+  /// Example
+  /// ```
+  /// // from_decimal_str("123.123");
+  /// ``` 
+  fn from_decimal_str(num : &str) -> Result<FBig, ParseError> {
+    let numbytes = num.as_bytes();
     let sign;
     let numindex = match numbytes[0] {
       b'-' => {
@@ -91,46 +100,37 @@ impl FBig {
           0
       }
     };
-    return FBig::parse_decimal_bytes(numbytes, sign, numindex, 10);
+    return FBig::parse_decimal_bytes(numbytes, sign, numindex);
 
   }
 
-  fn parse_decimal_bytes(bytes : &[u8], sign : Sign, start : usize, radix : Digit) -> Result<FBig, ParseError>{
-    let mut num_start_index = 0;
-    while bytes[num_start_index] == b'0' {
-        num_start_index += 1;
-    }
+  fn parse_decimal_bytes(bytes : &[u8], sign : Sign, mut start : usize) -> Result<FBig, ParseError>{
+    for b in &bytes[start..bytes.len() - 1] {
+      if *b != b'0' { break; }
+      start += 1;
+  }
 
-    let mut resbytes = Vec::with_capacity(bytes.len());
-    let mut e = 0;
-    let mut len = 0;
-    for (i, byte) in bytes[start..].iter().enumerate() {
-      if *byte == b'.' {
-        e = i;
-        continue;
+
+    let istart = start;
+    let mut iend = bytes.len(); 
+    let mut fstart = 0;
+    let fend = bytes.len();
+
+    for i in istart..fend{ 
+      if bytes[i] == b'.' {
+        iend = i;
+        fstart = i + 1;
+        break;
       }
-      resbytes.push(*byte);
-      len += 1;
     }
-    let magnitude = non_power_two::parse2(&resbytes[..len], radix).unwrap();
+    let magnitude = UBig::parse_decimal_bytes_with_fraction(&bytes[istart..iend], &bytes[fstart..fend]);
+    // let magnitude = UBig::parse_decimal_bytes(&resbytes).unwrap();
+    let e = (iend - istart) as isize;
     let n = IBig::from_sign_magnitude(sign, magnitude);
     let b = 10;
-    let p = resbytes.len();
-    return  Ok(FBig::new(n, b, e as isize, p));
-    // // let groups = bytes.rchunks(radix_info.digits_per_word);
-    // let groups = bytes.rchunks(4);
-    // let mut buffer = Buffer::allocate(bytes.len());
-    // for byte in bytes{
-    //     match digit_from_utf8_byte(byte, radix) {
-    //         Some(word)=>{
-    //           buffer.push(word)
-    //         }
-    //         None => {
-    //           return Err(ParseError::InvalidDigit);
-    //         }
-    //     }
-    // }
-    // Err(ParseError::InvalidDigit)
+    let p = fend - istart - 1;
+    return  Ok(FBig::new(n, b, e, p));
+    
   }
 }
 

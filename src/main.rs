@@ -11,37 +11,26 @@ use rmathrs_dtypes::{ibig::{IBig, parse::non_power_two, parse::decimal}, fbig::F
 
 
 fn main() {
-  let max = 1000_000;
-  let numstr = "1234567891234567";
-  let numbytes = numstr.as_bytes();
-
-  let curr = Instant::now();
-  for i in 1..max {
-    let res = IBig::from_str(numstr).unwrap();
-    // println!("res : {res}");
-
-  }
-
-  println!("Ibig took : {:?}", curr.elapsed());
-
   // init_ibig_perf();
-  // init_fbig_perf();
+  init_fbig_perf();
 }
 
 
 fn init_fbig_perf() {
   let curr = Instant::now();
-  let res = FBig::from_str("12121").unwrap();
-  println!("{:?}", res);
+  let res = FBig::from_str("12345.6789").unwrap();
+  println!("from str : {:?}", res);
+  let res = FBig::from_str("123456789123456789.8888123456789123456789123456789").unwrap();
+  println!("from str : {:?}", res);
+  let res = FBig::from(12345);
+  println!("from i32 : {:?}", res);
+  let res = FBig::from(12345.6789);
+  println!("from f64 : {:?}", res);
   println!("Took {:?}", curr.elapsed());
 }
 fn init_ibig_perf() {
   let curr = Instant::now();
   let res = IBig::from_str("12121").unwrap();
-  println!("{:?}", res);
-  // for i in 1..1000_000 {
-  //   // let st = i.to_string() + "12121";
-  //   IBig::from_str("12121").unwrap();
-  // }
+  println!("str : {:?}", res);
   println!("Took {:?}", curr.elapsed());
 }

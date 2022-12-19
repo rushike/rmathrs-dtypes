@@ -24,7 +24,7 @@
       // console.log("ne : ", a.ne(b));
       var numstr = "123456789123456789121";
       var max = 1000_000;
-      var max = 1;
+      // var max = 1;
       var t1 = performance.now()
       for(var i = 0; i < max; i++) {
         // FBig.from_str(numstr);
@@ -47,7 +47,7 @@
       for(var i = 0; i < max; i++) {
         var res = FBig.from_str(numstr);
         // parseargs(numstr);
-        console.log("Fbig ", res.toString());
+        // console.log("Fbig ", res.toString());
       }
       var t6 = performance.now()
 
@@ -56,7 +56,7 @@
       var t7 = performance.now()
       for(var i = 0; i < max; i++) {
         var res = IBig.from_str(numstr);
-        console.log("Ibig : ", res.toString());
+        // console.log("Ibig : ", res.toString());
         // parseargs(numstr);
       }
       var t8 = performance.now()
