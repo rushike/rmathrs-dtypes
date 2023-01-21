@@ -35,47 +35,6 @@ impl FBig {
       }
     }
 
-
-    fn from_decimal_str_flex(num : &str, radix : usize) -> Result<FBig, ParseError> {
-      lazy_static! { 
-        static ref NUM_STRING_MATCH_EXP: Regex = Regex::new(r"(?P<sign>[+-]?)([0]*)(?P<integer>\d+)?(\.(?P<fraction>(?P<leading_frac_zeros>[0]*)?\d+))?(e(?P<exp>[+-]?\d+))?").unwrap();
-      }
-      let captures = NUM_STRING_MATCH_EXP.captures(num).unwrap();
-
-      let sign = match captures.name("sign") {
-          Some(s) => s.as_str(),
-          None => "+"
-      };
-
-      let integer = match captures.name("integer") {
-          Some(i) => i.as_str(),
-          None => "0"
-      };
-
-      let fraction = match captures.name("fraction") {
-          Some(f) => f.as_str(),
-          None => ""
-      };
-
-      let exp = match captures.name("exp") {
-          Some(e) => e.as_str().parse().unwrap(),
-          None => 0
-      };
-
-      let leading_frac_zeros = match captures.name("leading_frac_zeros") {
-          Some(lfz) => lfz.as_str().len() as isize,
-          None => 0
-      };
-
-      let numstr = format!("{}{}{}", sign, integer, fraction);
-      let p = if integer == "0" {numstr.len() - 2} else {numstr.len() - 1};
-      let b = 10;
-      let n = IBig::from_str(numstr.as_str()).unwrap();
-      let e = if integer == "0" {-leading_frac_zeros + exp} else {integer.len() as isize + exp};
-
-      return Ok(FBig::new(n, b, e, p));
-    }
-
   /// This parases the floating decimal string of format <sign>?<integer>.<fraction>
   /// It assumes string contains digits from 0..9 only.
   /// 
@@ -108,12 +67,13 @@ impl FBig {
     for b in &bytes[start..bytes.len() - 1] {
       if *b != b'0' { break; }
       start += 1;
-  }
+    }
 
+    
 
     let istart = start;
     let mut iend = bytes.len(); 
-    let mut fstart = 0;
+    let mut fstart = iend;
     let fend = bytes.len();
 
     for i in istart..fend{ 
@@ -124,11 +84,12 @@ impl FBig {
       }
     }
     let magnitude = UBig::parse_decimal_bytes_with_fraction(&bytes[istart..iend], &bytes[fstart..fend]);
+
     // let magnitude = UBig::parse_decimal_bytes(&resbytes).unwrap();
     let e = (iend - istart) as isize;
     let n = IBig::from_sign_magnitude(sign, magnitude);
     let b = 10;
-    let p = fend - istart - 1;
+    let p = fend - istart;
     return  Ok(FBig::new(n, b, e, p));
     
   }
@@ -151,16 +112,28 @@ pub(crate) fn digit_from_utf8_byte(byte: &u8, radix: Digit) -> Option<Digit> {
 
 #[cfg(test)]
 mod parse {
-    use crate::fbig::FBig;
+    use std::str::FromStr;
+
+    use crate::{fbig::FBig, ibig::IBig};
 
   #[test]
   fn parse_decimal() {
-    // FBig::from_str_radix("0.3232", 10);
-    // println!(":):)");
-    let res1 = FBig::from_str_radix("123456789123456789121", 10);
-    println!(":):) {:?}", res1);
-    let res2 = FBig::from_str_radix("-0.3232", 10);
-    println!(":):) {:?}", res2);
+    let base = 10;
 
+    let num = "899";
+    let expected = FBig::new(IBig::from_str(num).unwrap(), base, 3, 3);
+    let res = FBig::from_str_radix(num, base).unwrap();
+    assert_eq!(res, expected);
+
+
+    let num = "123456789123456789121";
+    let expected = FBig::new(IBig::from_str(num).unwrap(), base, 21, 21);
+    let res = FBig::from_str_radix(num, base).unwrap();
+    assert_eq!(res, expected);
+    
+    let num = "-0.3232";
+    let expected = FBig::new(IBig::from_str("-3232").unwrap(), base, 0, 5);
+    let res = FBig::from_str_radix(num, base).unwrap();
+    assert_eq!(res, expected);
   }
 }

@@ -1,3 +1,5 @@
+use lazy_static::lazy_static;
+
 use std::str::FromStr;
 
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -23,6 +25,15 @@ pub struct FBig {
   pub(crate) p : usize
 }
 
+lazy_static! {
+  static ref ZERO : FBig = FBig {
+    n : IBig::from(0),
+    b : 10,
+    e : 0,
+    p : 0
+  };
+}
+
 #[wasm_bindgen]
 impl FBig {
     pub fn new(n : IBig, b : usize, e : isize, p : usize) -> FBig {
@@ -37,6 +48,7 @@ macro_rules! from_impl_for_ints_to_fbig {
     impl From<$t> for FBig {
         #[inline]
         fn from(num: $t) -> FBig {
+          if num == 0 {return ZERO.to_owned()}
           let e  = (num as FloatWord).abs().log10().floor() as isize + 1;
           // println!("inp : {num}, op : {e}");
           return Self{
@@ -100,7 +112,9 @@ impl From<String> for FBig {
 
 #[cfg(test)]
 mod tests {
-    use crate::ibig::IBig;
+    use std::str::FromStr;
+
+    use crate::{ibig::IBig, fbig::fbig::ZERO};
 
     use super::FBig;
 
@@ -118,8 +132,11 @@ mod tests {
       e : 4,
       p : 4
     };
+    
     let num1 = 1234;
     let num2 = -1234;
+    let num3 = 0;
+
     let res = FBig::from(num1 as u16);
     assert_eq!(res, expected1);
     let res = FBig::from(num1 as u32);
@@ -137,10 +154,31 @@ mod tests {
     assert_eq!(res, expected2);
     let res = FBig::from(num2 as i128);
     assert_eq!(res, expected2);
+
+    let res = FBig::from(num3);
+    assert_eq!(res, ZERO.to_owned());
+
   }
 
   #[test]
   fn test_impl_for_floats() {
+
+  }
+
+  #[test]
+  fn test_impl_for_from_str() {
+    let expected1 = FBig { 
+      n : IBig::from(899),
+      b : 10,
+      e : 3,
+      p : 3
+    };
+    
+    let num1 = "899";
+
+    let res = FBig::from_str(num1).unwrap();
+    assert_eq!(res, expected1);
+
 
   }
 }

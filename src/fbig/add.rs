@@ -17,9 +17,14 @@ fn add_or_sub(lhs: &FBig, rhs: &FBig, op : fn(&IBig, &IBig) -> IBig) -> FBig {
   let f1 = lhs.p as isize - lhs.e;
   let f2 = rhs.p as isize - rhs.e;
   let f = max(f1, f2);
-  let num = if f1 > f2 { op(&lhs.n, &rhs.n.shld((f1 - f2) as usize))}
-   else  { op(&lhs.n.shld((f2 - f1) as usize), &rhs.n) };
 
+  let num = if f1 > f2 { 
+    // If fractional part of left is > than fraction part of right
+    op(&lhs.n, &rhs.n.shld((f1 - f2) as usize))
+  } else  { 
+    op(&lhs.n.shld((f2 - f1) as usize), &rhs.n) 
+  };
+  dbg!(lhs.p, rhs.p, pmax);
   return FBig::new(num, lhs.b, emax, pmax);
 }
 
@@ -76,12 +81,13 @@ mod tests{
                           .map(|x| TestInput::val(x.clone()))
                           .collect::<Vec<FBig>>()
                           ;
-    //  ["0.3","121.90", "0", "899", -0.4].map(real)
+    dbg!(&a);
     let b = vec![Str("0.3".to_string()), Str("121.90".to_string()), Str("0".to_string()), Str(String::from("899")), Float64(-0.4)]
                           .iter()
                           .map(|x| TestInput::val(x.clone()))
                           .collect::<Vec<FBig>>()
                           ;
+    dbg!(&b);
     let expected = vec![Str("99.912".to_string()), Str("-121.90".to_string()), Float64(89.898), Int64(-821), Float64(1.4)]
                           .iter()
                           .map(|x| TestInput::val(x.clone()))
