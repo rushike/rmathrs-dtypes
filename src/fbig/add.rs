@@ -24,7 +24,8 @@ fn add_or_sub(lhs: &FBig, rhs: &FBig, op : fn(&IBig, &IBig) -> IBig) -> FBig {
   } else  { 
     op(&lhs.n.shld((f2 - f1) as usize), &rhs.n) 
   };
-  dbg!(lhs.p, rhs.p, pmax);
+  
+  // dbg!(lhs.p, rhs.p, pmax);
   return FBig::new(num, lhs.b, emax, pmax);
 }
 
@@ -62,9 +63,11 @@ impl SubAssign<FBig> for FBig {
 
 #[cfg(test)]
 mod tests{
-  use super::FBig;
+  use crate::fbig::testutils::{to_fbig_vec, apply_operation};
 
-  use crate::utils::TestInput::{Uint16, Int64, Float64, Str, self};
+use super::FBig;
+
+  use super::super::testutils::TestInput::{Uint16, Int64, Float64, Str, self};
 
   #[test]
   fn test_single() {
@@ -76,28 +79,14 @@ mod tests{
   
   #[test]
   fn test_sub() {
-    let a = vec![TestInput::Str(String::from("100.212")),Int64(0), Float64(89.898), Int64(78), Uint16(1)]
-                          .iter()
-                          .map(|x| TestInput::val(x.clone()))
-                          .collect::<Vec<FBig>>()
-                          ;
+    let a = to_fbig_vec(vec![TestInput::Str(String::from("100.212")),Int64(0), Float64(89.898), Int64(78), Uint16(1)]);
     dbg!(&a);
-    let b = vec![Str("0.3".to_string()), Str("121.90".to_string()), Str("0".to_string()), Str(String::from("899")), Float64(-0.4)]
-                          .iter()
-                          .map(|x| TestInput::val(x.clone()))
-                          .collect::<Vec<FBig>>()
-                          ;
+    let b = to_fbig_vec(vec![Str("0.3".to_string()), Str("121.90".to_string()), Str("0".to_string()), Str(String::from("899")), Float64(-0.4)]);
     dbg!(&b);
-    let expected = vec![Str("99.912".to_string()), Str("-121.90".to_string()), Float64(89.898), Int64(-821), Float64(1.4)]
-                          .iter()
-                          .map(|x| TestInput::val(x.clone()))
-                          .collect::<Vec<FBig>>();
+    let expected = to_fbig_vec(vec![Str("99.912".to_string()), Str("-121.90".to_string()), Float64(89.898), Int64(-821), Float64(1.4)]);
    
-
-    let res = a.iter().zip(b.iter())
-                .enumerate()
-                .map(|(_, (x, y))| x.clone() - y.clone())
-                .collect::<Vec<FBig>>();
+    let res = apply_operation(a, b);
+    dbg!(&res);
     assert_eq!(expected, res);
     
   }

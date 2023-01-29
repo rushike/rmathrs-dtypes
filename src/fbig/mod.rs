@@ -5,3 +5,5 @@ pub mod parse;
 mod cmp;
 mod add;
 pub mod wasm;
+
+mod testutils;

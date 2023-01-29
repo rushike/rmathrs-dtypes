@@ -64,49 +64,55 @@ impl FBig {
   }
 
   fn parse_decimal_bytes(bytes : &[u8], sign : Sign, mut start : usize) -> Result<FBig, ParseError>{
+    
     for b in &bytes[start..bytes.len() - 1] {
       if *b != b'0' { break; }
       start += 1;
     }
 
-    
-
     let istart = start;
+    let mut nstart = start;
     let mut iend = bytes.len(); 
     let mut fstart = iend;
+    // let mut search_for_fraction_leading_zeros = false; // will search for fractional leading zeros only after the occurrence of '.'
     let fend = bytes.len();
 
     for i in istart..fend{ 
+      // check if integer part of number ends
       if bytes[i] == b'.' {
         iend = i;
         fstart = i + 1;
+      }
+      // check if integer part is non zero and assign fstart and breaks
+      else if nstart < iend {
+        // break;
+      }
+      // below if integer part is zero and searches for fractional leading zeros, i.e. zeros after decimal point (.) like 0.02, 0.00343 etc these numbers have fraction leading zeros 
+      else if nstart >= iend && bytes[i] != b'0' {
+        fstart = i;
+        nstart = i - 1;
         break;
       }
     }
+
+    // dbg!(istart);
+    // dbg!(nstart);
+    // dbg!(iend);
+    // dbg!(fstart);
+    // dbg!(fend);
+
+    // dbg!(&bytes[istart..iend]);
+    // dbg!(&bytes[fstart..fend]);
+
     let magnitude = UBig::parse_decimal_bytes_with_fraction(&bytes[istart..iend], &bytes[fstart..fend]);
 
     // let magnitude = UBig::parse_decimal_bytes(&resbytes).unwrap();
-    let e = (iend - istart) as isize;
+    let e = iend as isize - nstart as isize ;
     let n = IBig::from_sign_magnitude(sign, magnitude);
     let b = 10;
-    let p = fend - istart;
+    let p = fend - fstart + iend - istart;
     return  Ok(FBig::new(n, b, e, p));
     
-  }
-}
-
-/// Converts a byte (ASCII) representation of a digit to its value.
-pub(crate) fn digit_from_utf8_byte(byte: &u8, radix: Digit) -> Option<Digit> {
-  let res = match byte {
-      b'0'..=b'9' => (byte - b'0') as Digit,
-      b'a'..=b'z' => (byte - b'a') as Digit + 10,
-      b'A'..=b'Z' => (byte - b'A') as Digit + 10,
-      _ => return None,
-  };
-  if res < radix {
-      Some(res)
-  } else {
-      None
   }
 }
 

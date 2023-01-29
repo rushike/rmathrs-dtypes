@@ -167,17 +167,47 @@ mod tests {
 
   #[test]
   fn test_impl_for_from_str() {
-    let expected1 = FBig { 
+    let expected = FBig { 
       n : IBig::from(899),
       b : 10,
       e : 3,
       p : 3
     };
+    let num = "899";
+    let res = FBig::from_str(num).unwrap();
+    assert_eq!(res, expected);
     
-    let num1 = "899";
 
-    let res = FBig::from_str(num1).unwrap();
-    assert_eq!(res, expected1);
+    let expected = FBig { 
+      n : IBig::from(3),
+      b : 10,
+      e : -1,
+      p : 1
+    };
+    let num = "0.03";
+    let res = FBig::from_str(num).unwrap();
+    assert_eq!(res, expected);
+
+    let expected = FBig { 
+      n : IBig::from(-103),
+      b : 10,
+      e : 1,
+      p : 3
+    };
+    let num = "-1.03";
+    let res = FBig::from_str(num).unwrap();
+    assert_eq!(res, expected);
+
+
+    let expected = FBig { 
+      n : IBig::from(451021213),
+      b : 10,
+      e : 3,
+      p : 9
+    };
+    let num = "451.021213";
+    let res = FBig::from_str(num).unwrap();
+    assert_eq!(res, expected)
 
 
   }
