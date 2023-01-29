@@ -100,6 +100,8 @@ mod shift_ops;
 pub mod sign;
 pub mod ubig;
 
+pub mod log;
+
 #[cfg(feature = "rand")]
 pub mod rand;
 
