@@ -59,7 +59,7 @@
 //! * `rand` (default): random number generation.
 //! * `serde`: serialization and deserialization.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+// #![cfg_attr(not(feature = "std"), no_std)]
 
 // extern crate alloc;
 

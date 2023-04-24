@@ -26,10 +26,8 @@ impl PartialEq for FBig {
 
 impl PartialOrd for FBig {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match self.b.partial_cmp(&other.b) {
-            Some(Ordering::Equal) => {}
-            _ => return panic!("Comparing FBig with different bases not supported"),
-        }
+        assert!(self.b == other.b);
+        
         match self.e.partial_cmp(&other.e) {
             Some(Ordering::Equal) => {}
             ord => return ord,

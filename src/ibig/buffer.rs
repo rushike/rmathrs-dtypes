@@ -1,6 +1,6 @@
 //! Word buffer.
 
-use crate::ibig::{arch::word::Word, ubig::UBig};
+use crate::{ibig::{arch::word::Word, ubig::UBig}, common::{primitive::WORD_BITS, arch::word::WORD_SIZE}};
 
 use alloc::vec::Vec;
 use core::{
@@ -149,6 +149,10 @@ impl Buffer {
         }
     }
 
+    pub(crate) fn bits(&self) -> usize {
+        (self.len() - 1 ) * WORD_SIZE + (*self.0.last().unwrap() as f64).log2() as usize + 1
+    }
+
     /// Maximum number of `Word`s.
     ///
     /// We allow 4 extra words beyond `UBig::MAX_LEN` to allow temporary space in operations.
@@ -176,6 +180,7 @@ impl Buffer {
         debug_assert!(num_words <= Buffer::MAX_CAPACITY);
         (num_words + num_words / 4 + 4).min(Buffer::MAX_CAPACITY)
     }
+
 }
 
 impl Clone for Buffer {

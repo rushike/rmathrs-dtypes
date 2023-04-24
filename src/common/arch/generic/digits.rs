@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::ibig::{arch::word::Word, radix::DigitCase};
 use crate::common::primitive::WORD_BYTES;
 /// Chunk length for digit conversion.

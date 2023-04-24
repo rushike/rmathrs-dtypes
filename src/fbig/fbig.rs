@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::{ibig::IBig, common::arch::word::{FloatWord, SignedWord, Word}};
+use crate::{ibig::IBig, common::arch::word::{FloatWord, SignedWord, Word, IWord}};
 
 /// Real 'd' represented as :
 ///    d = n * b ^ -e
@@ -36,11 +36,16 @@ lazy_static! {
 
 #[wasm_bindgen]
 impl FBig {
-    pub fn new(n : IBig, b : usize, e : isize, p : usize) -> FBig {
-      return FBig {
-        n, b, e, p
-      };
-    }
+  pub fn new(n : IBig, b : usize, e : isize, p : usize) -> FBig {
+    return FBig {
+      n, b, e, p
+    };
+  }
+
+  pub fn n(&self) -> IBig { self.n.copy() }
+  pub fn b(&self) -> usize { self.b }
+  pub fn e(&self) -> isize { self.e }
+  pub fn p(&self) -> usize { self.p }
 }
 
 macro_rules! from_impl_for_ints_to_fbig {
@@ -77,30 +82,32 @@ from_impl_for_ints_to_fbig!(i128);
 
 impl From<f64> for FBig {
     fn from(num: f64) -> Self {
-        let e  = num.abs().log10().floor() as isize + 1;
-        let intstr = num.to_string().replace(".", "");
-        let int : i64 = intstr.parse().unwrap();
-        // println!("num : {} e : {e}, int : {int}, intstr : {intstr}", num.abs().log10().floor());
-        return Self{
-            n: IBig::from(int),
-            b: 10,
-            e,
-            p: ((int as f64).abs().log10().floor() + 1.0) as usize
-        };
-    }
-}
-
-impl From<f32> for FBig {
-  fn from(num: f32) -> Self {
-      let e  = num.log10().ceil() as isize;
+      if num == 0.0 {return ZERO.to_owned()}
+      let e  = num.abs().log10().floor() as isize + 1;
       let intstr = num.to_string().replace(".", "");
-      let int : i32 = intstr.parse().unwrap();
+      let int : i64 = intstr.parse().unwrap();
+      // println!("num : {} e : {e}, int : {int}, intstr : {intstr}", num.abs().log10().floor());
       return Self{
           n: IBig::from(int),
           b: 10,
           e,
-          p: intstr.len()
+          p: ((int as f64).abs().log10().floor() + 1.0) as usize
       };
+  }
+}
+
+impl From<f32> for FBig {
+  fn from(num: f32) -> Self {
+    if num == 0.0 {return ZERO.to_owned()}
+    let e  = num.log10().ceil() as isize;
+    let intstr = num.to_string().replace(".", "");
+    let int : i32 = intstr.parse().unwrap();
+    return Self{
+        n: IBig::from(int),
+        b: 10,
+        e,
+        p: intstr.len() as usize
+    };
   }
 }
 
@@ -162,7 +169,28 @@ mod tests {
 
   #[test]
   fn test_impl_for_floats() {
+    let num = 1.2_f32;
+    let res = FBig::from(num);
+    let expected = FBig {
+      n : IBig::from(12),
+      b : 10,
+      e : 1,
+      p : 2
+    };
+    assert_eq!(res, expected);
 
+    let num = 1.12189892212_f64;
+    let res = FBig::from(num);
+    let expected = FBig {
+      n : IBig::from(112189892212_u64),
+      b : 10,
+      e : 1,
+      p : 12
+    };
+    assert_eq!(res, expected);
+
+    let res = FBig::from(0.0);
+    assert_eq!(res, ZERO.to_owned());
   }
 
   #[test]

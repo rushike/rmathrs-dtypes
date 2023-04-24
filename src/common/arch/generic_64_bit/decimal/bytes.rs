@@ -127,7 +127,7 @@ impl ParseBytes for DecimalBytes {
       // 2-byte mask trick (works on 2 pairs of two digits)
       let lower_digits = (chunk & 0x00ff0000) >> 16;
       let upper_digits = (chunk & 0x000000ff) * 100;
-      let chunk = (lower_digits + upper_digits) ;
+      let chunk = lower_digits + upper_digits ;
       return chunk as u64;
     }
     

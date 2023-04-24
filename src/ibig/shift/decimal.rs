@@ -37,4 +37,10 @@ mod tests {
     let num = IBig::from(32);
     assert_eq!(num.shld(2), IBig::from(3200));
   }
+
+  #[test]
+  fn test_shrd() {
+    let num = IBig::from(123000);
+    assert_eq!(num.shrd(3), IBig::from(123));
+  }
 }

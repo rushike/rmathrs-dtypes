@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::super::arch_impl::word::Word;
 
 /// Add a + b + carry.

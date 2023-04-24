@@ -21,9 +21,9 @@ pub enum TestInput {
   Str(String),
 }
 
-impl TestInput 
+impl From<TestInput> for FBig
 {
-  pub fn val(a : TestInput) -> FBig{
+ fn from(a : TestInput) -> FBig{
     match a {
         TestInput::Int8(v) => FBig::from(v),
         TestInput::Uint8(v) => FBig::from(v),
@@ -42,22 +42,18 @@ impl TestInput
   }
 }
 
-pub fn to_fbig_vec(vec : Vec<TestInput>) -> Vec<FBig> {
+pub fn to_fbig_vector(vec: Vec<TestInput>) -> Vec<FBig> {
   vec
-    .iter()
-    .map(|x| TestInput::val(x.clone()))
-    .collect::<Vec<FBig>>()
+  .iter()
+  .map(|x| x.clone().into())
+  .collect::<Vec<FBig>>()
 }
 
-pub fn apply_operation(a : Vec<FBig>, b : Vec<FBig>) -> Vec<FBig> {
+
+pub fn apply(ops : fn(FBig, FBig) -> FBig, a : Vec<FBig>, b : Vec<FBig>) -> Vec<FBig> {
   a.iter().zip(b.iter())
     .enumerate()
-    .map(|(_, (x, y))| x.clone() - y.clone())
+    .map(|(_, (x, y))| ops(x.clone(), y.clone()))
     .collect::<Vec<FBig>>()
 }
 
-#[test]
-fn main() {
-  let v : Vec<TestInput> = vec![TestInput::Int8(1), TestInput::Uint8(2), TestInput::Int16(12)];
-  println!("{:?}", v);
-}
