@@ -24,8 +24,8 @@ impl Logarithm for IBig {
 
     fn log2(&self) -> Self::Num {
       match self.magnitude().repr() {
-        Small(word) => IBig::from((*word as f32).log2() as i32) + 1,
-        Large(buffer) => IBig::from(buffer.bits()),
+        Small(word) => IBig::from((*word as f32).log2() as i32),
+        Large(buffer) => IBig::from(buffer.bits()) - 1,
       }
     }
 
@@ -36,7 +36,8 @@ impl Logarithm for IBig {
         Small(word) => IBig::from((*word as f32).log10() as i32) + 1,
         Large(_) => {
           let ndigit = self.log2().to_f64() * (log10_2); // FIXME convert it to FloatWord, instead to f64
-          
+          dbg!(self.log2().to_f64());
+          dbg!(ndigit);
           if ndigit.fract() > fraction {
             todo!("Boundry condition not implemented")
           }
@@ -58,12 +59,16 @@ mod tests {
 
   #[test]
   pub fn test_log2() {
-    let expected = IBig::from(6);
+    let expected = IBig::from(5);
     let res = IBig::from(35).log2();
     assert_eq!(expected, res);
 
-    let expected = IBig::from(108);
+    let expected = IBig::from(107);
     let res = IBig::from_str("212192719873981982798317982379817").unwrap().log2();
+    assert_eq!(expected, res);
+
+    let expected = IBig::from(122);
+    let res = IBig::from_str("8335450802422672859553559685048242436").unwrap().log2();
     assert_eq!(expected, res);
   }
 }

@@ -26,7 +26,7 @@ pub struct FBig {
 }
 
 lazy_static! {
-  static ref ZERO : FBig = FBig {
+  pub static ref ZERO : FBig = FBig {
     n : IBig::from(0),
     b : 10,
     e : 0,
@@ -113,7 +113,8 @@ impl From<f32> for FBig {
 
 impl From<String> for FBig {
   fn from(s: String) -> Self {
-      return FBig::from_str(s.as_str()).unwrap();
+    if s == "0" {return ZERO.to_owned()}
+    return FBig::from_str(s.as_str()).unwrap();
   }
 }
 
