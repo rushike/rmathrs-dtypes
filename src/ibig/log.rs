@@ -35,11 +35,10 @@ impl Logarithm for IBig {
       match self.magnitude().repr() {
         Small(word) => IBig::from((*word as f32).log10() as i32) + 1,
         Large(_) => {
-          let ndigit = self.log2().to_f64() * (log10_2); // FIXME convert it to FloatWord, instead to f64
-          dbg!(self.log2().to_f64());
-          dbg!(ndigit);
+          let mut ndigit = self.log2().to_f64() * (log10_2); // FIXME convert it to FloatWord, instead to f64
+
           if ndigit.fract() > fraction {
-            todo!("Boundry condition not implemented")
+            ndigit = logx(&self, 10)
           }
 
           IBig::from(ndigit as Word) + 1
@@ -49,13 +48,47 @@ impl Logarithm for IBig {
     }
 }
 
+fn logx(a : &IBig, b : Word) -> FloatWord {
+  let base = IBig::from(b);
+  let zero = IBig::from(0);
+
+  let mut _a = a.to_owned();
+  let mut i = 2;
+  let mut lg = 0;
+
+  while _a > base {
+
+    let temp = _a.to_owned() / b.pow(i);
+    if temp == zero {
+      i >>= 1;
+      continue;
+    }
+    _a = temp;
+    lg += i;
+    if i < 16 { i *= 2; }
+
+    if i == 0 {break;}
+  }
+
+  lg as FloatWord
+}
+
+
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
+  use std::str::FromStr;
 
-    use crate::ibig::IBig;
+  use crate::ibig::IBig;
 
-    use super::Logarithm;
+  use super::{Logarithm, logx};
+
+  #[test]
+  pub fn test_logx() {
+    let a = IBig::from_str("212192719873981982798317982379817").unwrap();
+    let b = 10;
+    let res = logx(&a, b);
+    dbg!(res);
+  }
 
   #[test]
   pub fn test_log2() {

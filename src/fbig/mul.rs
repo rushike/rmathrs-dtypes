@@ -13,18 +13,13 @@ lazy_static! {
 fn mul(lhs : FBig, rhs : FBig) -> FBig {
   assert!(lhs.b == rhs.b);
 
-  // let p = if lhs.p > rhs.p {lhs.p} else {rhs.p};
-
   let f1 = lhs.p as isize - lhs.e;
   let f2 = rhs.p as isize - rhs.e;
   let f = f1 + f2;
 
   let num = lhs.n * rhs.n;
   let prec = num.log10().to_f32() as usize;
-  // let exp = prec as isize - f;
-  let exp = lhs.e + rhs.e;
-
-  dbg!(exp, f, prec);
+  let exp = lhs.e + rhs.e - (rhs.p + lhs.p - prec) as isize;
 
   if num == ZERO.n {return ZERO.to_owned()};
 
